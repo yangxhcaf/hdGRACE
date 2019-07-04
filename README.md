@@ -1,5 +1,19 @@
-# TWSpaper
+# Emerging water trends paper: provided code
 
-Code name | Code Output
+PopulationDistribution.R
+> 
 
-PopulationDistribution.R | Takes the gridded global population and determines the distribution relative to TWS trends at 0.1cm/yr increments.
+WaterStressMean.R
+>
+
+CroplandDensity.R
+>
+
+WorldRegionGDP.R
+>
+
+WaterSecurityVulnerabilityIndex.R
+>
+
+VirtualWaterTrade.R
+>
