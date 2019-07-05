@@ -93,4 +93,4 @@ GDP.distr.plot <- function(WorldRegion_ID){
 # call any of the below functions 
 GDP.func(1) # GDP in world region
 GDP.pc.func(1) # GDP per capita in world region
-GDP.distr.plot(1) # GDP density plot relative to emerging trends in freshwater availability
+GDP.distr.plot(1) # GDP density plot relative to emerging trends in freshwater availability per world region
