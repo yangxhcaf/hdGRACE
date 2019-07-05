@@ -7,11 +7,14 @@
     - Uses the Rodell et al. (2018) source data, the Ramankutty et al. (2008) Global Agricultural Lands dataset, and EarthStat's CropAllocation to Food, Feed, Nonfood dataset to determine the range of emerging water availability trends per cropland land use density, and to supplement with the percent of global kilocalorie production occuring per cropland land use density as well.
 4. WorldRegionGDP.R
     - Uses the Rodell et al. (2018) source data, the MAgPIE model's definition of the 10 economic regions of the world, and the Kummu et al. (2018) global gridded GDP (PPP) datasets to determine the GDP (PPP) distribution per emerging water availability trend in each of the 10 economic regions. 
-5. WaterSecurityVulnerabilityIndex.R
-    - Uses the GWPv4 population, Kummu et al. (2018) GDP (PPP), and BiodiversityMapping.com's amphibian species richness dataset to create an indicator of the prevalence of the three primary sustainability pillars.
-    - Uses the Transparency International Corruption Perceptions Index, the World Bank's data on national wealth per capia, and the World Database of Protected Areas to create an indicator of insitutional resilience capacity.
-    - Combines the sustainability pillar and resilience capacity indicators (described above) to create a vulnerability filter (available on repository).
-    - Uses the Rodell et al. (2018) source data to categorically modify the World Resources Institue mapping of water stress and flood occurence.
-    - Passes this modified categorical global map of water stress and flood occurance through the derived vulnerability filter to determine the global water security vulnerability (available on repository). 
+5. Water Security Vulnerability related codes
+   - (5.1) VulnerabilityFilter.R
+      - Creates a prevalence of sustainability pillar indicator using: the GWPv4 population, Kummu et al. (2018) GDP (PPP), and BiodiversityMapping.com's amphibian species richness dataset.
+      - Creates an institutional resilience capacity indicator using: the Transparency International Corruption Perceptions Index, the World Bank's data on national wealth per capia, and the World Database of Protected Area.
+      - Combines the sustainability pillar and resilience capacity indicators (described above) to create a vulnerability filter (available on repository).
+    - (5.2) WRI_StatusModifier.R
+      - Uses the Rodell et al. (2018) source data to categorically modify the World Resources Institue mapping of water stress and flood occurence.
+    - (5.3) WaterSecurityVulnerability.R
+      - Passes the modified categorical global map of water stress and flood occurance through the derived vulnerability filter to determine the global water security vulnerability (available on repository). 
 6. VirtualWaterTrade.R
     - Uses the Rodell et al. (2018) source data and the Hoekstra et a. (2012) virtual water flows dataset to plot national net virtual water import per nation against net national trends in water storage. 
