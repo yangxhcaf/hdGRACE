@@ -4,7 +4,6 @@ library(dplyr)
 library(sp)
 library(raster)
 library(rgdal)
-library(e1071)
 
 #Import Rodell et al. (2018) emerging freshwater availability trend as done in previous scripts
 EmergingTrend <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
@@ -36,8 +35,6 @@ MAgPIE_ras <- raster("E:/! Xander/! Research/GIS_files/WorldRegions/MAgPIE_world
 ## Reclassify emerging trends to 0.1 increment bins
 reclassRanges <- data.frame(low = seq(-40, 6.0, 0.1), high = seq(-39.9, 6.1, 0.1), ReCLASS = seq(1:461))
 EmergingTrend_Reclass <- reclassify(EmergingTrend, reclassRanges)
-
-
 
 # Creating a function that takes the ID of the world region and returns the total GDP in region
 GDP.func <- function(WorldRegion_ID){
@@ -90,16 +87,8 @@ GDP.distr.plot <- function(WorldRegion_ID){
 }
 
 # MAgPIE world regions legend:
-# 1 - North America 
-# 2 - Former Soviet States
-# 3 - Pacific OECD nations
-# 4 - Pacific Asia
-# 5 - Centrally Planned Asia
-# 6 - South Asia
-# 7 - Sub-Saharan Africa
-# 8 - Middle East and North Africa
-# 9 - Western Europe
-# 10 - Latin America
+# 1 - North America | 2 - Former Soviet States | 3 - Pacific OECD nations | 4 - Pacific Asia | 5 - Centrally Planned Asia
+# 6 - South Asia | 7 - Sub-Saharan Africa | 8 - Middle East and North Africa | 9 - Western Europe | 10 - Latin America
 
 # call any of the below functions 
 GDP.func(1) # GDP in world region
