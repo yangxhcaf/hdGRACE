@@ -4,7 +4,7 @@ library(dplyr)
 library(rgdal) 
 library(magrittr) 
 library(sp) 
-library(e1071)
+library(e1071) 
 library(reshape2)
 
 ## Import raw emerging water availability trends (from Rodell et al. 2018)
