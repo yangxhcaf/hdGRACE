@@ -44,14 +44,13 @@ VWT.GRACE <- VWT.GRACE[, -(4:6)]
 
 ### For figure presentation, we provide an indicator per country based on corruption and wealth per capita, which is determined below
 # import corruption scores
-CPI_scores <- read.csv("C:/Users/Tom/Desktop/CPI_2018.csv")
+CPI_scores <- read.csv("E:/! Xander/! Research/GIS_files/Corruption/CPI_2018.csv")
 Country.CPI <- merge.data.frame(Country.shp, CPI_scores, by.x = "ADM0_A3", by.y = "ISO3", all = FALSE)
 Country.CPI <- Country.CPI[,-(3)]
 Country.CPI <- Country.CPI[,-(4:5)]
 # merge with main dataframe
 VWT.GRACE.CPI <- merge.data.frame(VWT.GRACE, Country.CPI, by.x = "Alpha3", by.y = "ADM0_A3", all = FALSE)
 VWT.GRACE.CPI <- VWT.GRACE.CPI[, -(6:7)]
-
 
 ## Total national wealth per capita
 Wealth <- read.csv("E:/! Xander/! Research/GIS_files/Wealth/Wealth-AccountsData.csv")
