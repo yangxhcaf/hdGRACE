@@ -8,16 +8,16 @@ library(reshape2)
 library(RColorBrewer)
 
 # Import Rodell et al. (2018) emerging freshwater availability trend as done in previous scripts
-EmergingTrend <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
+EmergingTrend <- raster("E:/! GIS_files/R_gis_exports/GRACE_0d05.tif")
 
 # Import Ramankutty et al. (2008) raw dataset of cropland density
-CroplandDensity <- raster("E:/! Xander/! Research/GIS_files/Cropland/cropland.tif")
+CroplandDensity <- raster("E:/! GIS_files/Cropland/cropland.tif")
 # and resample to 0.05d resolution
 e <- extent(-180, 180, -90, 90)
 extent(CroplandDensity) <- e
 CroplandDensity_resample <- resample(CroplandDensity, EmergingTrend, method = "bilinear")
 # write raster so resampling isn't required to rerun the code
-writeRaster(CroplandDensity_resample, "E:/! Xander/! Research/GIS_files/R_gis_exports/CroplandDensity_0d05.tif")
+writeRaster(CroplandDensity_resample, "E:/! GIS_files/R_gis_exports/cropland.tif")
 
 # Reclassify cropland density into 0.05 bins
 ReclassRanges <- data.frame(low = seq(0, 0.95, 0.05), high = seq(0.05, 1.00, 0.05), ReCLASS = seq(1:20))
