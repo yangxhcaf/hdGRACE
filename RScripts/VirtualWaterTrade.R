@@ -79,7 +79,7 @@ figure <- ggplot(data = VWT.GRACE.CPI.wealth, aes(x = TWS, y = VWT_cmyr)) +
   scale_fill_distiller(palette = "RdYlGn")+
   ylab(bquote('Net Annual Virtual Water Import '~(cmy^-1))) + 
   xlab(bquote('Terrestrial Water Storage Rate of Change'~(cmy^-1))) + 
-  coord_cartesian(xlim = c(-1, 1), ylim = c(-10, 10)) +
+  coord_cartesian(xlim = c(-3, 3), ylim = c(-8, 8)) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous( expand = c(0, 0)) +
   # geom_text(aes(label=NAME_LONG.x), hjust = 0.5, vjust = 0.5, size = 4)+
