@@ -7,29 +7,23 @@ library(sf)
 library(RColorBrewer)
 
 # import Virtual Water Trade (Water Footprint Network) table supplemented with country codes
-VWT <- read.csv("E:/! Xander/! Research/GIS_files/VirtualWater/VirtualWater_CountryCodes.csv")
+VWT <- read.csv("E:/! GIS_files/VirtualWater/VirtualWater_CountryCodes.csv")
 
 # import emerging freshwater availability trends 
-EmergingTrend <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
+EmergingTrend <- raster("E:/! GIS_files/R_gis_exports/GRACE_0d05.tif")
 
 # import Country shapefile
-Country.shp <- readOGR(dsn = "E:/! Xander/! Research/GIS_files/NaturalEarth",
+Country.shp <- readOGR(dsn = "E:/! GIS_files/NaturalEarth",
                        layer = "ne_10m_admin_0_countries")
-Country.shp <- Country.shp[,-(1:3)]
-Country.shp <- Country.shp[,-(3:6)]
-Country.shp <- Country.shp[,-(4)]
-Country.shp <- Country.shp[,-(4:9)]
-Country.shp <- Country.shp[,-(6:ncol(Country.shp))]
-Country.shp <- Country.shp[,-(6:30)]
-Country.shp <- Country.shp[,-(21:ncol(Country.shp))]
-Country.shp <- Country.shp[,-(14:16)]
+keepcol <- c("SOVEREIGNT", "ADM0_A3", "NAME", "NAME_LONG")
+Country.shp <- Country.shp[,keepcol, drop = FALSE]
 Country.shp <- Country.shp[order(Country.shp$ADM0_A3),]
 # Create unique integer ID for each country
 Country.shp$ID <- seq(1, nrow(Country.shp), 1)
 # write to OGR and reimport as converted GeoTIFF
-writeOGR(Country.shp, dsn="E:/! Xander/! Research/GIS_files/VirtualWater/CountryID.shp", 
+writeOGR(Country.shp, dsn="E:/! GIS_files/VirtualWater/CountryID.shp", 
          layer = "CountryID", driver="ESRI Shapefile", overwrite_layer=TRUE)
-CountryID <- raster("E:/! Xander/! Research/GIS_files/VirtualWater/CountryID_v1.tif")
+CountryID <- raster("E:/! GIS_files/VirtualWater/CountryID_v1.tif")
 
 # calulate mean terrestrial water storage trends per nation
 CountryGRACEtrend <- zonal(EmergingTrend, CountryID, "mean")
@@ -39,27 +33,30 @@ colnames(CountryGRACEtrend) <- c("ID", "TWS")
 Country.GRACE <- merge.data.frame(Country.shp, CountryGRACEtrend, by.x = "ID", by.y = "ID", all = FALSE)
 # combine with virtual water trade table
 VWT.GRACE <- merge.data.frame(VWT, Country.GRACE, by.x = "Alpha3", by.y = "ADM0_A3", all = FALSE)
-VWT.GRACE <- VWT.GRACE[, -(3:10)]
-VWT.GRACE <- VWT.GRACE[, -(4:6)]
+keepcol2 <- c("Alpha3", "Country", "VWT_cmyr", "NAME_LONG", "TWS")
+VWT.GRACE <- VWT.GRACE[,keepcol2, drop = FALSE]
 
 ### For figure presentation, we provide an indicator per country based on corruption and wealth per capita, which is determined below
 # import corruption scores
-CPI_scores <- read.csv("E:/! Xander/! Research/GIS_files/Corruption/CPI_2018.csv")
+CPI_scores <- read.csv("E:/! GIS_files/Corruption/CPI_2018.csv")
 Country.CPI <- merge.data.frame(Country.shp, CPI_scores, by.x = "ADM0_A3", by.y = "ISO3", all = FALSE)
-Country.CPI <- Country.CPI[,-(3)]
-Country.CPI <- Country.CPI[,-(4:5)]
+keepcol3 <- c("ADM0_A3", "SOVEREIGNT", "NAME_LONG", "CPI.Score.2018")
+Country.CPI <- Country.CPI[,keepcol3, drop = FALSE]
+
 # merge with main dataframe
 VWT.GRACE.CPI <- merge.data.frame(VWT.GRACE, Country.CPI, by.x = "Alpha3", by.y = "ADM0_A3", all = FALSE)
 VWT.GRACE.CPI <- VWT.GRACE.CPI[, -(6:7)]
 
 ## Total national wealth per capita
-Wealth <- read.csv("E:/! Xander/! Research/GIS_files/Wealth/Wealth-AccountsData.csv")
+Wealth <- read.csv("E:/! GIS_files/Wealth/Wealth-AccountsData.csv")
 Wealth %<>% filter(Indicator.Code == "NW.TOW.PC")
-Wealth <- Wealth[-(1:17),]
-Wealth <- Wealth[,-(3:7)]
-Wealth <- Wealth[,-(5)]
+keepcol4 <- c("ï..Country.Name" ,"Country.Code", "X2010", "X2014")
+Wealth <- Wealth[, keepcol4, drop = FALSE]
+Wealth <- Wealth[-(1:17),] # first 17 rows have regional (non-national) statistics
 Wealth.shp <- merge.data.frame(Country.shp, Wealth, by.x = "ADM0_A3", by.y = "Country.Code", all = FALSE)
 Wealth.shp <- Wealth.shp[,-(2:6)]
+
+
 # combine with main dataframe
 VWT.GRACE.CPI.wealth <- merge.data.frame(VWT.GRACE.CPI, Wealth.shp, by.x = "Alpha3", by.y = "ADM0_A3", all = FALSE)
 
@@ -85,7 +82,7 @@ figure <- ggplot(data = VWT.GRACE.CPI.wealth, aes(x = TWS, y = VWT_cmyr)) +
   coord_cartesian(xlim = c(-1, 1), ylim = c(-10, 10)) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous( expand = c(0, 0)) +
-  geom_text(aes(label=NAME.x), hjust = 0.5, vjust = 0.5, size = 4)+
+  # geom_text(aes(label=NAME_LONG.x), hjust = 0.5, vjust = 0.5, size = 4)+
   # geom_abline(intercept = 0, slope = 1, linetype = "dashed") + 
   geom_abline(intercept = 0, slope = -1, linetype = "dashed") 
 figure
