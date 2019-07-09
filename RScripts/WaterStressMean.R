@@ -8,9 +8,9 @@ library(e1071)
 library(reshape2) 
 
 ## Import emerging trend, population, and water stress GeoTIFFs created in PopulationDistribution.R
-EmergingTrend <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
-Pop.2015 <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/POP_2015_0d05_V1.tif")
-WaterStress <- raster("E:/! Xander/! Research/GIS_files/Aqueduct/WaterStress_WRI.tif")
+EmergingTrend <- raster("E:/! GIS_files/R_gis_exports/GRACE_0d05.tif")
+Pop.2015 <- raster("E:/! GIS_files/R_gis_exports/POP_2015_0d05_V1.tif")
+WaterStress <- raster("E:/! GIS_files/Aqueduct/WaterStress_WRI.tif")
 
 # generate population *times* emerging trend raster
 Pop.X.trend <- raster(EmergingTrend)
