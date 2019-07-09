@@ -6,31 +6,31 @@ library(raster)
 library(rgdal)
 
 #Import Rodell et al. (2018) emerging freshwater availability trend as done in previous scripts
-EmergingTrend <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
+EmergingTrend <- raster("E:/! GIS_files/R_gis_exports/GRACE_0d05.tif")
 
 # Import GDP (PPP) raw raster from Kummu et al. (2018)
-GDP.ppp <- raster("E:/! Xander/! Research/GIS_files/GDP/Kummu/2015_GDP_PPP_2015.tif")
+GDP.ppp <- raster("E:/! GIS_files/GDP/Kummu/2015_GDP_PPP_2015.tif")
 
 # Import population raster used in previous scripts
-Population <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/POP_2015_0d05.tif")
+Population <- raster("E:/! GIS_files/R_gis_exports/POP_2015_0d05.tif")
 
 # Resample the gridded GDP dataset to arrive at 0.05d resolution (can be executed faster in QGIS or by using multiple cores)
 GDP <- raster::aggregate(x = GDP, fact = 6, fun = "sum", expand = TRUE)
 # write raster so resampling isn't required to rerun the code
 writeRaster(GDP,
-            filename="E:/! Xander/! Research/GIS_files/R_gis_exports/Kummu_GDP_0d05.tif",
+            filename="E:/! GIS_files/R_gis_exports/Kummu_GDP_0d05.tif",
             format="GTiff", overwrite=TRUE)
 
 # Import country shapefile IDed based on MAgPIE world economic region
-MAgPIE.regions <- readOGR(dsn = "E:/! Xander/! Research/GIS_files/Admin0_countries/MagPIE_regions",
+MAgPIE.regions <- readOGR(dsn = "E:/! GIS_files/Admin0_countries/MagPIE_regions",
                           layer = "MAgPIE_regions")
 # create unique ID per MAgPIE region
 MAgPIE.regions$ID <- seq(1, nrow(MAgPIE.regions), 1)
 # Write OGR so that rasterization can be performed in QGIS (faster than rasterizing in Rstudio)
-writeOGR(MAgPIE.regions, dsn="E:/! Xander/! Research/GIS_files/Admin0_countries/MagPIE_regions/MAgPIE_ID.shp", 
+writeOGR(MAgPIE.regions, dsn="E:/! GIS_files/Admin0_countries/MagPIE_regions/MAgPIE_ID.shp", 
          layer = "MAgPIE_ID", driver="ESRI Shapefile", overwrite_layer=TRUE)
 # Import rasterized MAgPIE regions of the world
-MAgPIE_ras <- raster("E:/! Xander/! Research/GIS_files/WorldRegions/MAgPIE_worldregions.tif")
+MAgPIE_ras <- raster("E:/! GIS_files/WorldRegions/MAgPIE_worldregions.tif")
 
 ## Reclassify emerging trends to 0.1 increment bins
 reclassRanges <- data.frame(low = seq(-40, 6.0, 0.1), high = seq(-39.9, 6.1, 0.1), ReCLASS = seq(1:461))
