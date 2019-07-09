@@ -6,15 +6,16 @@ library(ggplot2)
 
 # Import data
 # Emerging water availability trends from Rodell et al. (2018)
-EmergingTrend <- raster("E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
+EmergingTrend <- raster("E:/! GIS_files/R_gis_exports/GRACE_0d05.tif")
 # WRI Aqueduct HydroBASIN dataset (includes water stress and flood frequency)
-WRIbasins <- readOGR(dsn = "E:/! Xander/! Research/GIS_files/Aqueduct",
+WRIbasins <- readOGR(dsn = "E:/! GIS_files/Aqueduct",
                      layer = "aqueduct_global_dl_20150409")
 
 # Convert WRI aqueduct basin shapefile data to continuous indexes for water stress and flooding
 # Simplify attribute table
-WRIbasins_clean <- WRIbasins[, -(22:ncol(WRIbasins))]
-WRIbasins_clean <- WRIbasins_clean[, -(13:18)]
+keepcols <- c("GU","Shape_Leng","Shape_Area","BasinID","COUNTRY","BASIN_NAME",
+              "BWS", "BWS_s", "BWS_cat", "HFO", "HFO_s", "HFO_cat")
+WRIbasins_clean <- WRIbasins[, keepcols, drop = FALSE]
 
 # classify water stress into continuous index
 WRIbasins_clean$BWS_scale <- ifelse(WRIbasins_clean$BWS < 0.1, (WRIbasins_clean$BWS/0.1),
@@ -37,13 +38,13 @@ WRIbasins_clean$Flood_scale <- ifelse(WRIbasins_clean$Flood_scale > 4, 4,
                                     ifelse(WRIbasins_clean$Flood_scale < 0, 0, WRIbasins_clean$Flood_scale))
 
 # Write to new shapefile so that vector shapefile can be rasterized in QGIS
-writeOGR(WRIbasins_clean, dsn="E:/! Xander/! Research/GIS_files/Aqueduct/WRI_ContinuousIndex.shp", 
+writeOGR(WRIbasins_clean, dsn="E:/! GIS_files/Aqueduct/WRI_ContinuousIndex.shp", 
          layer = "WRI_ContinuousIndex", driver="ESRI Shapefile", overwrite_layer=TRUE)
 
 # Rasterize exported shapefile to 0.05d resolution in QGIS (optimal performance to R) for continuous flood and water stress index,
 # and re-import here
-WaterStress.current <- raster("E:/! Xander/! Research/GIS_files/Aqueduct/Rasterize/WaterStress_ContinuousIndex.tif")
-Flooding.current <- raster("E:/! Xander/! Research/GIS_files/Aqueduct/Rasterize/Flooding_ContinuousIndex.tif")
+WaterStress.current <- raster("E:/! GIS_files/Aqueduct/Rasterize/WaterStress_ContinuousIndex.tif")
+Flooding.current <- raster("E:/! GIS_files/Aqueduct/Rasterize/Flooding_ContinuousIndex.tif")
 
 # Create water stress modification raster from emerging water trend (drying increases, wetting decreases)
 WaterStress_mod <- EmergingTrend
@@ -68,9 +69,9 @@ Flooding.mod[Flooding.mod < 0] <- 0
 
 # export modified water stress and flooding rasters
 writeRaster(Flooding.mod, 
-            filename="E:/! Xander/! Research/GIS_files/R_gis_exports/WRI_Flooding_mod.tif", 
+            filename="E:/! GIS_files/R_gis_exports/WRI_Flooding_mod.tif", 
             format="GTiff", overwrite=TRUE)
 writeRaster(WaterStress.mod, 
-            filename="E:/! Xander/! Research/GIS_files/R_gis_exports/WRI_WaterStress_mod.tif", 
+            filename="E:/! GIS_files/R_gis_exports/WRI_WaterStress_mod.tif", 
             format="GTiff", overwrite=TRUE)
 
