@@ -9,24 +9,24 @@ library(reshape2)
 
 ## Import raw emerging water availability trends (from Rodell et al. 2018)
 # This requires the preprocessing of converting the provided .csv file to GeoTIFF
-GRACE <- raster("E:/! Xander/! Research/GIS_files/GRACE/Rodell_raw.tif")
+GRACE <- raster("E:/! GIS_files/GRACE/Rodell_raw.tif")
 
 # Resample GRACE (emerging trends) to 0.05d resolution
 s <- raster(GRACE) 
 res(s) <- 0.05
 EmergingTrend <- resample(GRACE, s, method='bilinear')
 # Write raster for future use w/o needing to resample
-writeRaster(EmergingTrend, "E:/! Xander/! Research/GIS_files/R_gis_exports/GRACE_0d05.tif")
+writeRaster(EmergingTrend, "E:/! GIS_files/R_gis_exports/GRACE_0d05.tif", overwrite = TRUE)
 
 # Load raw population raster (GWPv4, 2015)
-Population_raw.2015 <- raster("E:/! Xander/! Research/GIS_files/PopulationRaster/2015/gpw-v4-population-count-rev11_2015_30_sec_tif/gpw_v4_population_count_rev11_2015_30_sec.tif")
+Population_raw.2015 <- raster("E:/! GIS_files/PopulationRaster/2015/gpw-v4-population-count-rev11_2015_30_sec_tif/gpw_v4_population_count_rev11_2015_30_sec.tif")
 # Resample population raster to 0.05d resolution
 Pop.2015 <- raster::aggregate(Population_raw.2015, fact = 6, fun = sum)
 # Write raster for future use w/o needing to resample
-writeRaster(Pop.2015, "E:/! Xander/! Research/GIS_files/R_gis_exports/POP_2015_0d05_V1.tif")
+writeRaster(Pop.2015, "E:/! GIS_files/R_gis_exports/POP_2015_0d05_V1.tif")
 
 # Load WRI Aqueduct raw data 
-Aqueduct <- readOGR(dsn = "E:/! Xander/! Research/GIS_files/Aqueduct",
+Aqueduct <- readOGR(dsn = "E:/! GIS_files/Aqueduct",
                     layer = "aqueduct_global_dl_20150409")
 # simplify attribute table to only shape and water stress attributes
 Aqueduct <- Aqueduct[,c(1:4,10:12)]
@@ -40,10 +40,10 @@ Aqueduct$BWS_id <- ifelse(Aqueduct$BWS_cat == "1. Low (<10%)", 1,
                                                       ifelse(Aqueduct$BWS_cat == "Arid & low water use", 0, 99))))))
 
 # write a new shapefile to use in converting vector file to raster at 0.05d resolution
-writeOGR(Aqueduct, dsn="E:/! Xander/! Research/GIS_files/Aqueduct/WaterStress_WRI.shp", 
+writeOGR(Aqueduct, dsn="E:/! GIS_files/Aqueduct/WaterStress_WRI.shp", 
          layer = "WaterStress_WRI", driver="ESRI Shapefile", overwrite_layer=TRUE)
 # import converted water stress raster (GIS specific software perform vector rasterization much faster than in R)
-WaterStress <- raster("E:/! Xander/! Research/GIS_files/Aqueduct/WaterStress_WRI.tif")
+WaterStress <- raster("E:/! GIS_files/Aqueduct/WaterStress_WRI.tif")
 # set all cells containing NA to set ID for no data
 WaterStress[is.na(WaterStress[])] <- 99
 WaterStress %<>% as.factor()
