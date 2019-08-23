@@ -1,6 +1,6 @@
 # Human dimensions to changing freshwater availability
 
-## Index of repository items 
+Below is an index of all repository items. Classified into folders of: **Raw Data**, **Code**, **Data Produts**, and **Figures**. Detailed text is provided in **Code** and **Data Product** folders.
 
 ### Raw Data
 Data | Source
@@ -19,7 +19,6 @@ Perceived public sector corruption | [Transparency International](https://www.tr
 Protected Areas | [World Database of Protected Areas](https://www.protectedplanet.net/)
 
 ### Code
-*Note, a more specific README exists in the RScripts folder, which details the function of each script.*
 1. PopulationDistribution.R
 2. WaterStressMean.R
 3. CroplandDensity.R
@@ -38,13 +37,5 @@ Protected Areas | [World Database of Protected Areas](https://www.protectedplane
 * Water security vulnerability
 
 ### Figures
-* Figure 1
-* Figure 2
-* Figure 3
-* Figure 4
-* Supplementary Figure 1
-* Supplementary Figure 2
-* Supplementary Figure 3
-* Supplementary Figure 4
-* Supplementary Figure 5
-* Supplementary Figure 6
+* Figures 1 - 4
+* Supplementary Figures 1 - 6
