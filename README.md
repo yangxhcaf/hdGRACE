@@ -4,6 +4,7 @@ Below is an index of all repository items. Classified into folders of: **Code**,
 
 ### Raw Data
 Data and sources for all data used in the project are listed below. Each dataset exceeds the 25MB GitHub file size limit, so links to datasources are provided insetead of uploading the raw data files. Data requests can also be made through request to xander.huggins@gmail.com.
+
 Data | Source
 ------------ | -------------
 GRACE-derived TWS trends | [Rodell et al. (2018) source data](https://www.nature.com/articles/s41586-018-0123-1)
