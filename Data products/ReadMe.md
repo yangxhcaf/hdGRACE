@@ -1,4 +1,4 @@
-*data products are listed below in order of production/usage in workflow*
+*Data products are listed below in order of production/usage in workflow*
 
 Data Product | Description
 ------------ | -------------
