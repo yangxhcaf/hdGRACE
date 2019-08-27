@@ -1,5 +1,5 @@
 # Human dimensions to changing freshwater availability
-## Manuscript repository
+## Manuscript repository (*draft*)
 Below is an index of all repository items classified into folders of: **RScripts**, **Data Produts**, and **Figures**. Detailed text is provided in **Code** and **Data Product** folders.
 
 ### Raw Data
