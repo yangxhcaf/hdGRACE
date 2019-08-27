@@ -1,6 +1,6 @@
 # Human dimensions to changing freshwater availability
 ## Manuscript repository (*draft*)
-Below is an index of all repository items classified into folders of: **RScripts**, **Data Produts**, and **Figures**. Detailed text is provided in **Code** and **Data Product** folders.
+Below is an index of all repository items classified into folders of: **RScripts**, **Data Produts**, and **Figures**. Detailed text is provided in **RScripts** and **Data Product** folders.
 
 ### Raw Data
 Data and sources for all data used in the project are listed below. Most datasets exceeds the 25MB GitHub file size limit, so links to datasources are provided insetead of uploading the raw data files. Raw datasets under the size limit are available under Data Products/Raw Data. Data requests can also be made through request to xander.huggins@gmail.com.
