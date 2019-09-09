@@ -14,7 +14,7 @@ Riverine Flood Risk | [WRI Aqueduct (2019 release)](https://www.wri.org/aqueduct
 Kilocalorie production and end use | [EarthStat](http://www.earthstat.org/crop-allocation-food-feed-nonfood/)
 Cropland land use density | [Ramankutty et al. (2008)](http://www.earthstat.org/cropland-pasture-area-2000/)
 Land use | [ESA CCI LC](https://www.esa-landcover-cci.org/)
-Amphibian Species Richness | [BiodiversityMapping.org](https://biodiversitymapping.org/wordpress/index.php/amphibians/)
+Amphibian Species Richness | [Global Amphibian Richness Grids](https://sedac.ciesin.columbia.edu/data/set/species-global-amphibian-richness-2015)
 National net virtual water trade | [Water Footprint Network](https://waterfootprint.org/en/resources/waterstat/international-virtual-water-flow-statistics/)
 Gross national income per capita | [World Bank Data Catalogue](https://databank.worldbank.org/data/download/GNIPC.pdf)
 Perceived public sector corruption | [Transparency International](https://www.transparency.org/cpi2018)
