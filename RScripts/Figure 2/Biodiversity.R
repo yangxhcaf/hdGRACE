@@ -23,19 +23,24 @@ GRACE_0d05res <- raster("Z:/2.active_projects/Xander/! GIS_files/GRACE/GRACE_cor
 # Load biodiversity data 
 
 # amphibian species richness 
-AmphSpRch <- raster("Z:/2.active_projects/Xander/! GIS_files/Biodiversity/Raster/Amph_SpeciesRichness/Richness_10km_AMPHIBIANS.tif")
-# Resample GRACE to 0.05d resolution
-AmphSpRch_0d05res <- resample(AmphSpRch, GRACE_0d05res, method='bilinear')
-P10 <- raster::quantile(AmphSpRch_0d05res, probs = 0.1, type = 7, na.rm = TRUE, names = FALSE)
-P20 <- raster::quantile(AmphSpRch_0d05res, probs = 0.2, type = 7, na.rm = TRUE, names = FALSE)
-P30 <- raster::quantile(AmphSpRch_0d05res, probs = 0.3, type = 7, na.rm = TRUE, names = FALSE)
-P40 <- raster::quantile(AmphSpRch_0d05res, probs = 0.4, type = 7, na.rm = TRUE, names = FALSE)
-P50 <- raster::quantile(AmphSpRch_0d05res, probs = 0.5, type = 7, na.rm = TRUE, names = FALSE)
-P60 <- raster::quantile(AmphSpRch_0d05res, probs = 0.6, type = 7, na.rm = TRUE, names = FALSE)
-P70 <- raster::quantile(AmphSpRch_0d05res, probs = 0.7, type = 7, na.rm = TRUE, names = FALSE)
-P80 <- raster::quantile(AmphSpRch_0d05res, probs = 0.8, type = 7, na.rm = TRUE, names = FALSE)
-P90 <- raster::quantile(AmphSpRch_0d05res, probs = 0.9, type = 7, na.rm = TRUE, names = FALSE)
-P100 <- raster::quantile(AmphSpRch_0d05res, probs = 1.0, type = 7, na.rm = TRUE, names = FALSE)
+AmphSpRch <- raster("Z:/2.active_projects/Xander/! GIS_files/Biodiversity/SEDAC/all_amphibians.tif")
+# resample to 0.05d resolution
+AmphSpRch_0d05res <- raster::aggregate(AmphSpRch, fact = 6, fun = mean, expand = FALSE, na.rm = FALSE)
+# need to resample using nearest neighbour because resolution and extent don't completely align
+AmphSpRch_product <- resample(AmphSpRch_0d05res, GRACE_0d05res, method = "ngb")
+AmphSpRch_product[AmphSpRch_product == 0] <- NA
+
+# classify py percentile
+P10 <- raster::quantile(AmphSpRch_product, probs = 0.1, type = 7, na.rm = TRUE, names = FALSE)
+P20 <- raster::quantile(AmphSpRch_product, probs = 0.2, type = 7, na.rm = TRUE, names = FALSE)
+P30 <- raster::quantile(AmphSpRch_product, probs = 0.3, type = 7, na.rm = TRUE, names = FALSE)
+P40 <- raster::quantile(AmphSpRch_product, probs = 0.4, type = 7, na.rm = TRUE, names = FALSE)
+P50 <- raster::quantile(AmphSpRch_product, probs = 0.5, type = 7, na.rm = TRUE, names = FALSE)
+P60 <- raster::quantile(AmphSpRch_product, probs = 0.6, type = 7, na.rm = TRUE, names = FALSE)
+P70 <- raster::quantile(AmphSpRch_product, probs = 0.7, type = 7, na.rm = TRUE, names = FALSE)
+P80 <- raster::quantile(AmphSpRch_product, probs = 0.8, type = 7, na.rm = TRUE, names = FALSE)
+P90 <- raster::quantile(AmphSpRch_product, probs = 0.9, type = 7, na.rm = TRUE, names = FALSE)
+P100 <- raster::quantile(AmphSpRch_product, probs = 1.0, type = 7, na.rm = TRUE, names = FALSE)
 
 Low <- c(0, P10, P20, P30, P40, P50, P60, P70, P80, P90)
 High <- c(P10, P20, P30, P40, P50, P60, P70, P80, P90, P100)
@@ -44,13 +49,13 @@ Reclss <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 ReclssTable <- cbind(Low, High, Reclss) %>% as.data.frame() 
 names(ReclssTable) <- NULL
 
-AmphSpRch_0d05res_bins <- reclassify(AmphSpRch_0d05res,     
+AmphSpRch_products_bins <- reclassify(AmphSpRch_product,     
                                      ReclssTable) 
 
 # Merge GRACE data with binned species richness
 GRACE_df <- GRACE_0d05res %>% as.data.frame()
-AmphSpRch_0d05res_bins_df <- AmphSpRch_0d05res_bins %>% as.data.frame()
-GRACE_per_BiodiversitySpRich <- cbind(GRACE_df, AmphSpRch_0d05res_bins_df)
+AmphSpRch_products_bins_df <- AmphSpRch_products_bins %>% as.data.frame()
+GRACE_per_BiodiversitySpRich <- cbind(GRACE_df, AmphSpRch_products_bins_df)
 colnames(GRACE_per_BiodiversitySpRich) <- c("GRACE", "Amph")
 GRACE_per_BiodiversitySpRich <- GRACE_per_BiodiversitySpRich[complete.cases(GRACE_per_BiodiversitySpRich), ]
 GRACE_per_BiodiversitySpRich$Amph <- as.factor(GRACE_per_BiodiversitySpRich$Amph)
@@ -95,4 +100,3 @@ GRACE_per_BiodiversitySpRich_boxplot <- ggplot(GRACE_per_BiodiversitySpRich, aes
 GRACE_per_BiodiversitySpRich_boxplot 
 
 ggsave("C:/Users/Tom/Desktop/AmphDistr_10th.png", GRACE_per_BiodiversitySpRich_boxplot, width = 5, height = 7, dpi = 300, bg = "transparent")
-
