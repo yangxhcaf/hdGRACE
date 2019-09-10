@@ -5,70 +5,84 @@ library(ggspatial)
 library(ggplot2)
 library(e1071)
 library(scales)
+library(spatstat)
+library(reldist)
+library(magrittr)
 library(reshape2)
-library(naniar)
-library(RColorBrewer)
-library(Rmisc)
+library(Hmisc)
+library(quantreg)
+library(spatstat)
+library(reldist)
 
 ### Load Data
 
 # Load GRACE DATA (at 0.5 d resolution)
-GRACE <- raster("C:/Users/lab/Documents/! Xander/! Research/TWS/GRACE_upright.tif")
+EmergingTrend <- raster("Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/GRACE_0d05.tif")
 
-# Resample GRACE to 0.05d resolution
-s <- raster(nrow=3600, ncol=7200)
-GRACE_0d05res <- resample(GRACE, s, method='bilinear')
-GRACE_0d05res <- raster("Z:/2.active_projects/Xander/! GIS_files/GRACE/GRACE_coredata.tif")
+# Load amphibian species richness dataset
+Amphibians <- raster("Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/AmphSpRch__0d05.tif")
 
-# Load biodiversity data 
+# load raster cell area in km2 at 0d05 resolution
+CellArea <- raster("Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/WGS84_cellArea_0d05res.tif")
+CellArea_norm <- CellArea/max(CellArea[])
 
-# amphibian species richness 
-AmphSpRch <- raster("Z:/2.active_projects/Xander/! GIS_files/Biodiversity/SEDAC/all_amphibians.tif")
-# resample to 0.05d resolution
-AmphSpRch_0d05res <- raster::aggregate(AmphSpRch, fact = 6, fun = mean, expand = FALSE, na.rm = FALSE)
-# need to resample using nearest neighbour because resolution and extent don't completely align
-AmphSpRch_product <- resample(AmphSpRch_0d05res, GRACE_0d05res, method = "ngb")
-AmphSpRch_product[AmphSpRch_product == 0] <- NA
+# Merge GRACE data with RAW species richness dataset (at 0d05) with area weightings
+EmergingTrend_df <- EmergingTrend_df %>% as.data.frame()
+Amphibians_df <- Amphibians %>% as.data.frame()
+CellArea_norm_df <- CellArea_norm %>% as.data.frame()
+Biodiversity_analysis <- cbind(GRACE_df, Amphibians_df, CellArea_norm_df)
+colnames(Biodiversity_analysis) <- c("GRACE", "Spc.Rich", "AreaWgt")
+Biodiversity_analysis$Spc.Rich <- ifelse(Biodiversity_analysis$Spc.Rich < 1, NA, Biodiversity_analysis$Spc.Rich)
+Biodiversity_analysis <- Biodiversity_analysis[complete.cases(Biodiversity_analysis), ]
 
-# classify py percentile
-P10 <- raster::quantile(AmphSpRch_product, probs = 0.1, type = 7, na.rm = TRUE, names = FALSE)
-P20 <- raster::quantile(AmphSpRch_product, probs = 0.2, type = 7, na.rm = TRUE, names = FALSE)
-P30 <- raster::quantile(AmphSpRch_product, probs = 0.3, type = 7, na.rm = TRUE, names = FALSE)
-P40 <- raster::quantile(AmphSpRch_product, probs = 0.4, type = 7, na.rm = TRUE, names = FALSE)
-P50 <- raster::quantile(AmphSpRch_product, probs = 0.5, type = 7, na.rm = TRUE, names = FALSE)
-P60 <- raster::quantile(AmphSpRch_product, probs = 0.6, type = 7, na.rm = TRUE, names = FALSE)
-P70 <- raster::quantile(AmphSpRch_product, probs = 0.7, type = 7, na.rm = TRUE, names = FALSE)
-P80 <- raster::quantile(AmphSpRch_product, probs = 0.8, type = 7, na.rm = TRUE, names = FALSE)
-P90 <- raster::quantile(AmphSpRch_product, probs = 0.9, type = 7, na.rm = TRUE, names = FALSE)
-P100 <- raster::quantile(AmphSpRch_product, probs = 1.0, type = 7, na.rm = TRUE, names = FALSE)
+P10 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.1)) %>% unname() %>% as.numeric()
+P20 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.2)) %>% unname() %>% as.numeric() 
+P30 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.3)) %>% unname() %>% as.numeric()
+P40 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.4)) %>% unname() %>% as.numeric()
+P50 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.5)) %>% unname() %>% as.numeric()
+P60 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.6)) %>% unname() %>% as.numeric()
+P70 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.7)) %>% unname() %>% as.numeric()
+P80 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.8)) %>% unname() %>% as.numeric()
+P90 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 0.9)) %>% unname() %>% as.numeric()
+P100 <- Biodiversity_analysis %>% summarise(x = weighted.quantile(Spc.Rich, AreaWgt, probs = 1.0)) %>% unname() %>% as.numeric()
 
+# reclassify/bin species richness distribution based on percentiles calculated
 Low <- c(0, P10, P20, P30, P40, P50, P60, P70, P80, P90)
 High <- c(P10, P20, P30, P40, P50, P60, P70, P80, P90, P100)
 Reclss <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
-ReclssTable <- cbind(Low, High, Reclss) %>% as.data.frame() 
+ReclssTable <- cbind(Low, High, Reclss) 
 names(ReclssTable) <- NULL
 
-AmphSpRch_products_bins <- reclassify(AmphSpRch_product,     
-                                     ReclssTable) 
+AmphSpRch_Deciles <- raster::reclassify(Amphibians,ReclssTable) 
 
-# Merge GRACE data with binned species richness
-GRACE_df <- GRACE_0d05res %>% as.data.frame()
-AmphSpRch_products_bins_df <- AmphSpRch_products_bins %>% as.data.frame()
-GRACE_per_BiodiversitySpRich <- cbind(GRACE_df, AmphSpRch_products_bins_df)
-colnames(GRACE_per_BiodiversitySpRich) <- c("GRACE", "Amph")
-GRACE_per_BiodiversitySpRich <- GRACE_per_BiodiversitySpRich[complete.cases(GRACE_per_BiodiversitySpRich), ]
-GRACE_per_BiodiversitySpRich$Amph <- as.factor(GRACE_per_BiodiversitySpRich$Amph)
+# Merge GRACE data with binned species richness with area weights
+EmergingTrend_df <- EmergingTrend_df %>% as.data.frame()
+AmphSpRch_Deciles_df <- AmphSpRch_Deciles %>% as.data.frame()
+CellArea_norm_df <- CellArea_norm %>% as.data.frame()
 
-# coul = colorRampPalette(coul)(4)
-detach(package:Rmisc)
-detach(package:plyr)
-summ <- GRACE_per_BiodiversitySpRich %>% 
-  group_by(Amph) %>%
-  summarize(mean = mean(GRACE), median = median(GRACE), IQR = IQR(GRACE))
+Biodiversity_analysis <- cbind(EmergingTrend_df, AmphSpRch_Deciles_df, CellArea_norm_df)
+colnames(Biodiversity_analysis) <- c("GRACE", "SpsRch_bin", "AreaWgt")
+Biodiversity_analysis$SpsRch_bin %<>% as.factor()
+Biodiversity_analysis <- Biodiversity_analysis[complete.cases(Biodiversity_analysis), ]
 
-### below is box plot
-GRACE_per_BiodiversitySpRich_boxplot <- ggplot(GRACE_per_BiodiversitySpRich, aes(x=Amph, y = GRACE)) +
+# Calculate area weighted TWSt stats
+summ <- Biodiversity_analysis %>% 
+  group_by(SpsRch_bin) %>%
+  summarise(WeightedMean = weighted.mean(GRACE, AreaWgt),
+            WeightedMedian = weighted.median(GRACE, AreaWgt),
+            Weightedp25 = weighted.quantile(GRACE, AreaWgt, probs = 0.25),
+            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75))
+summ$WeightedIQR <- summ$Weightedp75 - summ$Weightedp25
+
+summDF <- data.frame(x= summ$SpsRch_bin, min=summ$Weightedp25 - 1.5*summ$WeightedIQR, 
+                     low=summ$Weightedp25, mid = summ$WeightedMedian, 
+                     top=summ$Weightedp75, max= summ$Weightedp75 + 1.5*summ$WeightedIQR)
+summDF$x %<>% as.factor()
+summDF <- summDF %>% filter(x != "0") # remove regions of NA biodiversity
+
+## below is area weighted box plot
+Figure2e <-  ggplot(summDF, aes(x = x, ymin = min, lower = low, middle = mid, upper = top, ymax = max, fill = x)) +
   geom_hline(yintercept = 0, size = 1.5) +
   geom_hline(yintercept = -3, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
   geom_hline(yintercept = -2, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
@@ -76,13 +90,8 @@ GRACE_per_BiodiversitySpRich_boxplot <- ggplot(GRACE_per_BiodiversitySpRich, aes
   geom_hline(yintercept = 1, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
   geom_hline(yintercept = 2, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
   geom_hline(yintercept = 3, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
-  geom_boxplot(outlier.alpha = 0, fill = "#A4A4A4") +
+  geom_boxplot(width = 0.75, lwd = 0.7, stat = "identity", outlier.alpha = 0, fill = "#A4A4A4") +
   scale_x_discrete(limits=c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")) +
-  # stat_summary(data = test, aes(y = GRACE, group = 1), fun.y = mean, geom = "line", colour = "black", size = 1.6) +
-  # stat_summary(aes(y = GRACE, group = 2), fun.y = mean, geom = "point", colour = "black", size = 1.6) +
-  # stat_summary(aes(y = GRACE, group = 3), fun.y = mean, geom = "point", colour = "black", size = 1.6) +
-  # geom_point(data = GRACExcrop_summary_no1, aes(x = Crop_bins0d5, y = GRACE_upright + sd), size = 2) +
-  # geom_point(data = GRACExcrop_summary_no1, aes(x = Crop_bins0d5, y = GRACE_upright - sd), size = 2) +
   scale_y_continuous(breaks = seq(-3, 3, by = 1), expand = c(0,0)) +
   theme(panel.border = element_rect(colour = "black", fill=NA, size= 1.5),
         axis.title = element_text(size = 11, color = "black"),
@@ -97,6 +106,27 @@ GRACE_per_BiodiversitySpRich_boxplot <- ggplot(GRACE_per_BiodiversitySpRich, aes
         axis.title.y = element_text(color = "black")) +
   # scale_fill_manual(values = coul) +
   coord_flip(ylim = c(-2, 2))
-GRACE_per_BiodiversitySpRich_boxplot 
+Figure2e 
 
-ggsave("C:/Users/Tom/Desktop/AmphDistr_10th.png", GRACE_per_BiodiversitySpRich_boxplot, width = 5, height = 7, dpi = 300, bg = "transparent")
+ggsave("C:/Users/Tom/Desktop/CellArea_figures/Biodiversity_AreaWeighted.png", Figure2e, 
+       dpi = 500, width = 6, height = 7, bg = "transparent")
+
+### Code to take RAW amphibian species richness dataset and aggregate to 0.05 degree resolution
+#
+#
+AmphSpRch <- raster("Z:/2.active_projects/Xander/! GIS_files/Biodiversity/SEDAC/all_amphibians.tif")
+# resample to 0.05d resolution
+AmphSpRch_0d05res <- raster::aggregate(AmphSpRch, fact = 6, fun = mean, expand = FALSE, na.rm = FALSE)
+# need to resample using nearest neighbour because resolution and extent don't completely align
+AmphSpRch_product <- resample(AmphSpRch_0d05res, GRACE_0d05res, method = "ngb")
+# Load land mass raster (using countries)
+CountryID <- raster("Z:/2.active_projects/Xander/! GIS_files/VirtualWater/CountryID_v1.tif") 
+# Min. = 1; tf ocean is where countryID < 1
+
+# set AmphSpRch_product to NA where ocean is
+AmphSpRch_product[CountryID < 1] <- NA
+AmphSpRch_product[is.na(CountryID)] <- NA
+
+writeRaster(AmphSpRch_product, 
+            filename="Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/AmphSpRch__0d05.tif", 
+            format="GTiff", overwrite=TRUE)
