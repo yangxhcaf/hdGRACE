@@ -79,11 +79,6 @@ Figure2d <- ggplot(summDF, aes(x = x, ymin = min, lower = low, middle = mid, upp
   scale_x_discrete(limits=c("7", "6", "3", "5", "1", "2", "4"),
                    labels = c("Bare Areas", "Shrubland/Sparse Vegetation", "Grassland", "Urban", 
                               "Agriculture", "Forest", "Wetland")) +
-  # stat_summary(data = test, aes(y = GRACE, group = 1), fun.y = mean, geom = "line", colour = "black", size = 1.6) +
-  # stat_summary(aes(y = GRACE, group = 2), fun.y = mean, geom = "point", colour = "black", size = 1.6) +
-  # stat_summary(aes(y = GRACE, group = 3), fun.y = mean, geom = "point", colour = "black", size = 1.6) +
-  # geom_point(data = GRACExcrop_summary_no1, aes(x = Crop_bins0d5, y = GRACE_upright + sd), size = 2) +
-  # geom_point(data = GRACExcrop_summary_no1, aes(x = Crop_bins0d5, y = GRACE_upright - sd), size = 2) +
   scale_y_continuous(breaks = seq(-3, 3, by = 1), expand = c(0,0)) +
   theme(panel.border = element_rect(colour = "black", fill=NA, size= 1.5),
         axis.title = element_text(size = 11, color = "black"),
