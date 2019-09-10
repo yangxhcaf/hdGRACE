@@ -42,16 +42,16 @@ CellArea <- raster("Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/WGS84_
 CellArea_norm <- CellArea/max(CellArea[])
 
 # Merge GRACE data with binned species richness
-GRACE_df <- GRACE_0d05 %>% as.data.frame()
+EmergingTrend_df <- EmergingTrend %>% as.data.frame()
 LandUseBin_df <- LandUse_CategoryBin %>% as.data.frame()
 CellArea_norm_df <- CellArea_norm %>% as.data.frame()
-GRACE_LandUseBin_AreaWgt_df <- cbind(GRACE_df, LandUseBin_df, CellArea_norm_df)
-colnames(GRACE_LandUseBin_AreaWgt_df) <- c("GRACE", "LandUseCat", "AreaWgt")
-GRACE_LandUseBin_AreaWgt_df <- GRACE_LandUseBin_AreaWgt_df[complete.cases(GRACE_LandUseBin_AreaWgt_df), ]
-GRACE_LandUseBin_AreaWgt_df$LandUseCat <- as.factor(GRACE_LandUseBin_AreaWgt_df$LandUseCat)
+LandUse_analysis <- cbind(GRACE_df, LandUseBin_df, CellArea_norm_df)
+colnames(LandUse_analysis) <- c("GRACE", "LandUseCat", "AreaWgt")
+LandUse_analysis <- LandUse_analysis[complete.cases(LandUse_analysis), ]
+LandUse_analysis$LandUseCat <- as.factor(LandUse_analysis$LandUseCat)
 
 # determine distribution statistics for the coupled raster grids
-summ <- GRACE_LandUseBin_AreaWgt_df %>% 
+summ <- LandUse_analysis %>% 
   group_by(LandUseCat) %>%
   summarise(WeightedMean = weighted.mean(GRACE, AreaWgt),
             WeightedMedian = weighted.median(GRACE, AreaWgt),
