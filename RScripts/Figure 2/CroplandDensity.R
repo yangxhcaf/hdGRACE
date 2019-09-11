@@ -55,13 +55,15 @@ summ <- CropDensity.TWSt.AreaWgt %>%
   summarise(WeightedMean = weighted.mean(GRACE, AreaWgt),
             WeightedMedian = weighted.median(GRACE, AreaWgt),
             Weightedp25 = weighted.quantile(GRACE, AreaWgt, probs = 0.25),
-            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75))
+            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75),
+            WeightedpLOW = weighted.quantile(GRACE, AreaWgt, probs = 0.05),
+            WeightedHIGH = weighted.quantile(GRACE, AreaWgt, probs = 0.95))
 summ$WeightedIQR <- summ$Weightedp75 - summ$Weightedp25
 
 # format results for ggplot boxplot figure generation 
-summDF <- data.frame(x= summ$cropland, min=summ$Weightedp25 - 1.5*summ$WeightedIQR, 
+summDF <- data.frame(x= summ$cropland, min=summ$WeightedpLOW, 
                      low=summ$Weightedp25, wgt.mean = summ$WeightedMean, mid = summ$WeightedMedian, 
-                     top=summ$Weightedp75, max= summ$Weightedp75 + 1.5*summ$WeightedIQR)
+                     top=summ$Weightedp75, max= summ$WeightedHIGH)
 summDF$x %<>% as.factor()
 summDF <- summDF %>% filter(x != "0" &  x != "1") # remove bare areas from plot
 
@@ -94,7 +96,7 @@ Figure2b <- ggplot(summDF, aes(x = x, ymin = min, lower = low, middle = mid, upp
   xlab("cropland") + ylab("GRACE") + labs(fill = "cropland")
 Figure2b
 
-ggsave("C:/Users/Tom/Desktop/CellArea_figures/CroplandDensity_AreaWgt.png", figure, 
+ggsave("C:/Users/Tom/Desktop/CellArea_figures/CroplandDensity_AreaWgt.png", Figure2b, 
        dpi = 500, width = 7, height = 7, bg = "transparent")
 
 ### Below is some code to determine the statistical significance differentiating distributions per cropland density
