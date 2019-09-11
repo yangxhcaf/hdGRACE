@@ -72,12 +72,14 @@ summ <- Biodiversity_analysis %>%
   summarise(WeightedMean = weighted.mean(GRACE, AreaWgt),
             WeightedMedian = weighted.median(GRACE, AreaWgt),
             Weightedp25 = weighted.quantile(GRACE, AreaWgt, probs = 0.25),
-            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75))
+            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75),
+            WeightedLOW = weighted.quantile(GRACE, AreaWgt, probs = 0.05),
+            WeightedHIGH = weighted.quantile(GRACE, AreaWgt, probs = 0.95))
 summ$WeightedIQR <- summ$Weightedp75 - summ$Weightedp25
 
-summDF <- data.frame(x= summ$SpsRch_bin, min=summ$Weightedp25 - 1.5*summ$WeightedIQR, 
+summDF <- data.frame(x= summ$SpsRch_bin, min=summ$WeightedLOW, 
                      low=summ$Weightedp25, mid = summ$WeightedMedian, 
-                     top=summ$Weightedp75, max= summ$Weightedp75 + 1.5*summ$WeightedIQR)
+                     top=summ$Weightedp75, max= summ$WeightedHIGH)
 summDF$x %<>% as.factor()
 summDF <- summDF %>% filter(x != "0") # remove regions of NA biodiversity
 
@@ -130,3 +132,4 @@ AmphSpRch_product[is.na(CountryID)] <- NA
 writeRaster(AmphSpRch_product, 
             filename="Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/AmphSpRch__0d05.tif", 
             format="GTiff", overwrite=TRUE)
+
