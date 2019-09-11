@@ -32,7 +32,7 @@ new <- c(1, 1, 1, 1, 1, 1, # agriculture
          4, # wetland
          5, # urban
          6, 6, 6, 6, 6, 6, 6, 6, # shrubland/vegetation
-         7, 7, 7, # bare area
+         6, 6, 6, # bare area
          8) # water
 Substitute_df <- data.frame(old, new)
 LandUse_CategoryBin <- subs(LandUse, Substitute_df, 1, 2, subsWithNA=TRUE)
@@ -56,13 +56,15 @@ summ <- LandUse_analysis %>%
   summarise(WeightedMean = weighted.mean(GRACE, AreaWgt),
             WeightedMedian = weighted.median(GRACE, AreaWgt),
             Weightedp25 = weighted.quantile(GRACE, AreaWgt, probs = 0.25),
-            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75))
+            Weightedp75 = weighted.quantile(GRACE, AreaWgt, probs = 0.75),
+            WeightedLOW = weighted.quantile(GRACE, AreaWgt, probs = 0.05),
+            WeightedHIGH = weighted.quantile(GRACE, AreaWgt, probs = 0.95))
 summ$WeightedIQR <- summ$Weightedp75 - summ$Weightedp25
 
 # format results for ggplot boxplot figure generation 
-summDF <- data.frame(x= summ$LandUseCat, min=summ$Weightedp25 - 1.5*summ$WeightedIQR, 
+summDF <- data.frame(x= summ$LandUseCat, min=summ$WeightedLOW, 
                      low=summ$Weightedp25, wgt.mean = summ$WeightedMean, mid = summ$WeightedMedian, 
-                     top=summ$Weightedp75, max= summ$Weightedp75 + 1.5*summ$WeightedIQR)
+                     top=summ$Weightedp75, max= summ$WeightedHIGH)
 summDF$x %<>% as.factor()
 summDF <- summDF %>% filter(x != "8") # remove want land use from plot
 
@@ -76,8 +78,8 @@ Figure2d <- ggplot(summDF, aes(x = x, ymin = min, lower = low, middle = mid, upp
   geom_hline(yintercept = 2, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
   geom_hline(yintercept = 3, size = 0.5, colour = "white", alpha = 0.5, linetype = "dashed") +
   geom_boxplot(width = 0.75, lwd = 0.7, stat = "identity", outlier.alpha = 0, fill = "#A4A4A4") +
-  scale_x_discrete(limits=c("7", "6", "3", "5", "1", "2", "4"),
-                   labels = c("Bare Areas", "Shrubland/Sparse Vegetation", "Grassland", "Urban", 
+  scale_x_discrete(limits=c("6", "3", "5", "1", "2", "4"),
+                   labels = c("Other", "Grassland", "Urban", 
                               "Agriculture", "Forest", "Wetland")) +
   scale_y_continuous(breaks = seq(-3, 3, by = 1), expand = c(0,0)) +
   theme(panel.border = element_rect(colour = "black", fill=NA, size= 1.5),
@@ -96,5 +98,5 @@ Figure2d <- ggplot(summDF, aes(x = x, ymin = min, lower = low, middle = mid, upp
   ylab("GRACE") + xlab("LandUseCat")
 Figure2d
 
-ggsave("C:/Users/Tom/Desktop/CellArea_figures/LandUse_AreaWeighted.png", figure, 
+ggsave("C:/Users/Tom/Desktop/CellArea_figures/LandUse_AreaWeighted.png", Figure2d, 
        dpi = 500, width = 6, height = 7, bg = "transparent")
