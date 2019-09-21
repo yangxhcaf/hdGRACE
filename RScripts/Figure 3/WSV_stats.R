@@ -25,7 +25,6 @@ CellArea_norm <- CellArea/max(CellArea[])
 # import MAgPIE world regions
 MAgPIE_ras <- raster("Z:/2.active_projects/Xander/! GIS_files/WorldRegions/MAgPIE_worldregions.tif")
 
-
 # assess distribution of results per MAgPIE region
 
 # FLOOD
@@ -74,7 +73,6 @@ summ_DF_stress$x %<>% as.factor()
 summ_DF_stress$WSVtype <- "stress"
 
 summ_DF <- rbind(summ_DF_flood, summ_DF_stress)
-summ_DF$min <- ifelse(summ_DF$min<0, 0, summ_DF$min)
 
 FigInsert <- ggplot(summ_DF, aes(x = x, ymin = min, lower = low, middle = mid, upper = top, ymax = max, fill = factor(WSVtype))) +
   # scale_x_discrete(limits=c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")) +
