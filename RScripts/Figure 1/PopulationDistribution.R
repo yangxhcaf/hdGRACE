@@ -172,16 +172,12 @@ figure.B <- ggplot() +
         legend.position = "none") +
   geom_hline(yintercept = 0, size = 1.5) + 
   stat_smooth(data = a, aes(x = Class, y = MeanTWS), lwd = 2, colour = "black", method = "lm", formula = y ~ poly(x,4), se = FALSE) +
-  # scale_colour_gradient2(low = "red 3", mid = "lemonchiffon2", high = "royalblue4",
-  #                        midpoint = -0.15, guide = FALSE)+
   geom_point(data = a, aes(x = Class, y = MeanTWS, size = Pop, fill = ..y..), pch = 21, stroke = 1.5) + 
   scale_fill_gradient2(low = "red 3", mid = "lemonchiffon2", high = "royalblue2",
                        midpoint = -0.15, guide = FALSE)+ 
   scale_radius("Population (millions)", range = c(6,15), trans = "sqrt") +  
   scale_x_reverse(labels = c("0" = "Low", "1" = "Low to Med.", "2" = "Med. to High", "3" = "High", "4" = "Extremely High")) +
   scale_y_continuous(limits = c(-1, 0.5), breaks = c(-1, -0.75, - 0.5, -0.25, 0, 0.25, 0.5), expand = c(0,0)) + 
-  # xlab("Baseline Water Stress Class") +
-  # ylab(expression(atop(bold('Population Weighted Mean Terrestrial'), paste(bold('Water Storage Rate of Change'~(cmy^-1)))))) + 
   coord_flip()
 figure.B
 
