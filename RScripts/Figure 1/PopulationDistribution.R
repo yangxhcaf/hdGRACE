@@ -19,11 +19,12 @@ EmergingTrend <- resample(GRACE, s, method='bilinear')
 writeRaster(EmergingTrend, "Z:/2.active_projects/Xander/! GIS_files/GRACE/GRACE_coredata.tif", overwrite = TRUE)
 
 # Load raw population raster (GWPv4, 2015)
-Population_raw.2015 <- raster("Z:/2.active_projects/Xander/! GIS_files/PopulationRaster/2015/gpw-v4-population-count-rev11_2015_30_sec_tif/gpw_v4_population_count_rev11_2015_30_sec.tif")
+Population_raw.2015 <- raster("Z:/2.active_projects/Xander/! GIS_files/PopulationRaster/gpw_v4_population_count_adjusted_to_2015_unwpp_country_totals_rev10_2015_30_sec.tif")
 # Resample population raster to 0.05d resolution
-Pop.2015 <- raster::aggregate(Population_raw.2015, fact = 6, fun = sum)
+Pop.2015_UNWPP <- raster::aggregate(Population_raw.2015, fact = 6, fun = sum)
+Pop.2015_UNWPP <- resample(Pop.2015_UNWPP, EmergingTrend, method = "ngb")
 # Write raster for future use w/o needing to resample
-writeRaster(Pop.2015, "Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/POP_2015_0d05_V1.tif", overwrite = TRUE)
+writeRaster(Pop.2015_UNWPP, "Z:/2.active_projects/Xander/! GIS_files/R_gis_exports/POP_2015_0d05_UNWPP.tif", overwrite = TRUE)
 
 # Import converted Aqueduct (WRI, 2019) bws categorical raster (polygon file rasterized at 0.05d resolution in QGIS)
 WaterStress <- raster("Z:/2.active_projects/Xander/! GIS_files/QGIS_exports/Aqueduct2019_bwscat.tif")
@@ -51,13 +52,13 @@ Pop.Arid[]  <- 0
 Pop.NoDat[]  <- 0
 
 # populate population rasters per water stress class
-Pop.Low[WaterStress == 0]     <- Pop.2015[WaterStress == 0]
-Pop.LowMed[WaterStress == 1]  <- Pop.2015[WaterStress == 1]
-Pop.MedHigh[WaterStress == 2] <- Pop.2015[WaterStress == 2]
-Pop.High[WaterStress == 3]    <- Pop.2015[WaterStress == 3]
-Pop.ExHigh[WaterStress == 4]  <- Pop.2015[WaterStress == 4]
-Pop.Arid[WaterStress == -1]    <- Pop.2015[WaterStress == -1]
-Pop.NoDat[WaterStress == -99]  <- Pop.2015[WaterStress == -99]
+Pop.Low[WaterStress == 0]     <- Pop.2015_UNWPP[WaterStress == 0]
+Pop.LowMed[WaterStress == 1]  <- Pop.2015_UNWPP[WaterStress == 1]
+Pop.MedHigh[WaterStress == 2] <- Pop.2015_UNWPP[WaterStress == 2]
+Pop.High[WaterStress == 3]    <- Pop.2015_UNWPP[WaterStress == 3]
+Pop.ExHigh[WaterStress == 4]  <- Pop.2015_UNWPP[WaterStress == 4]
+Pop.Arid[WaterStress == -1]    <- Pop.2015_UNWPP[WaterStress == -1]
+Pop.NoDat[WaterStress == -99]  <- Pop.2015_UNWPP[WaterStress == -99]
 
 # Reclassify emerging trend into 0.1 cm/yr increment bins
 ReclassRanges <- data.frame(low = seq(-40, 6.0, 0.1), high = seq(-39.9, 6.1, 0.1), ReCLASS = seq(1:461))
@@ -102,7 +103,7 @@ figure.A <- ggplot(Pop.distr.melted, aes(x = Trend, y = value, fill = variable))
        y = "Populaiton (in millions)") 
 figure.A
 
-ggsave("C:/Users/Tom/Desktop/PopulationDistr.png", figure.A, dpi = 500, width = 14, height = 10, bg = "transparent")
+ggsave("C:/Users/Tom/Desktop/PopulationDistr_UNWPP.png", figure.A, dpi = 500, width = 14, height = 10, bg = "transparent")
 
 ## Skewness calculation
 # create new dataframe 
@@ -181,4 +182,4 @@ figure.B <- ggplot() +
   coord_flip()
 figure.B
 
-ggsave("C:/Users/Tom/Desktop/PopMeanTWS.png", figure.B, dpi = 500, width = 3.75, height = 12.2, bg = "transparent")
+ggsave("C:/Users/Tom/Desktop/PopMeanTWS_UNWPP.png", figure.B, dpi = 500, width = 3.75, height = 12.2, bg = "transparent")
