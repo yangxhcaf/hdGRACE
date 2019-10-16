@@ -15,19 +15,41 @@ Comparison <- cbind(GRACE_original_0d05_df, GRACE_bilin_df)
 Comparison$Error <- 100*(Comparison$GRACE_0d05- Comparison$Rodell_raw)/Comparison$Rodell_raw
 Comparison$Diff <- abs(Comparison$GRACE_0d05- Comparison$Rodell_raw)
 
-# tiff('C:/Users/Tom/Desktop/AbsERR_hist.tiff', units="in", width=7, height=7, res=300, compression = 'lzw')
-hist(Comparison$Diff,
-     prob = FALSE,
-     main="Absolute error between raw Rodell et al. (6) source data\nand bilinearly interpolated dataset",
-     xlab="cm/yr error",
-     xlim=c(-0.0,4.5),
-     ylim = c(0,0.25e8),
-     col="black",
-     border="white",
-     breaks=c(seq(-10,10, by = 0.1))
-     
-)
-# dev.off()
+## below is the code to create and plot multiple histograms at once
+# Set the bin size and load the high and low values of the distribution
+binSize <- 0.05
+highValue <- 4
+LowValue <- 0
+
+# this initializes a matrix to populate the histogram results with
+FreqMatrix <- matrix(data = NA, nrow = ((highValue-LowValue))/binSize, ncol = 2)
+
+# run a for loop to determine the number of observations within each range for each sample set
+for (i in 1:nrow(FreqMatrix)){
+  FreqMatrix[i,1] <- (i-1)*binSize
+  FreqMatrix[i,2] <- Comparison %>% filter((Diff >= ((i-1)*binSize)) & (Diff < ((i)*binSize))) %>% nrow()
+}
+
+# turn the matrix into a datframe for plotting
+FreqMatrix %<>% as.data.frame()
+colnames(FreqMatrix) <- c("LowLimit", "Count")
+a <- sum(FreqMatrix$Count)
+FreqMatrix$density <- FreqMatrix$Count/a
+
+# plot the results!
+figure <- ggplot(FreqMatrix) +
+  geom_bar(aes(x=LowLimit+0.025, y=density), stat = "identity", fill = "black")+
+  coord_cartesian(xlim = c(0,4), ylim = c(0,1), expand = c(0,0))+
+  theme(panel.background =  element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.minor.x = element_blank(), 
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "none")
+figure
+
+ggsave("C:/Users/Tom/Desktop/InterpolateError.png", figure, dpi = 500, width = 8, height = 8, bg = "transparent")
 
 
 # create absolute differene raster
@@ -49,4 +71,3 @@ Prs <- cor.test(Comparison$Rodell_raw, Comparison$GRACE_0d05, method= "pearson")
 Spr <- cor.test(Comparison$Rodell_raw, Comparison$GRACE_0d05, method= "spearman")
 
 Prs
-
